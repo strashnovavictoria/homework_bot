@@ -34,10 +34,12 @@ current_timestamp = int(time.time())
 
 
 class HTTPStatusCodeIncorrect(Exception):
+    """Создаем исключение."""
     pass
 
 
 def send_message(bot, message):
+    """фунция для отправки сообщений."""
 
     bot.send_message(
         chat_id=TELEGRAM_CHAT_ID,
@@ -103,6 +105,7 @@ def parse_status(homework):
 
 
 def check_tokens() -> bool:
+    """Проверяем переменных окружения"""
     return all((PRACTICUM_TOKEN, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID))
 
 
