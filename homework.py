@@ -35,6 +35,7 @@ current_timestamp = int(time.time())
 
 class HTTPStatusCodeIncorrect(Exception):
     """Создаем исключение."""
+
     pass
 
 
