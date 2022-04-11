@@ -41,6 +41,7 @@ class HTTPStatusCodeIncorrect(Exception):
 def send_message(bot, message):
     """фунция для отправки сообщений."""
 
+
     bot.send_message(
         chat_id=TELEGRAM_CHAT_ID,
         text=message
@@ -49,6 +50,7 @@ def send_message(bot, message):
 
 def get_api_answer(current_timestamp):
     """делает запрос к единственному эндпоинту API-сервиса."""
+
 
     params = {'from_date': current_timestamp}
     homeworks = requests.get(ENDPOINT, headers=HEADERS, params=params)
@@ -63,6 +65,7 @@ def get_api_answer(current_timestamp):
 
 def check_response(response):
     """проверяет ответ API на корректность."""
+
 
     if not response:
         raise Exception('Словарь пустой')
@@ -80,6 +83,7 @@ def check_response(response):
 
 def parse_status(homework):
     """извлекает статус работы."""
+
 
     if type(homework) is not dict:
         raise KeyError('Это не словарь!')
@@ -106,11 +110,14 @@ def parse_status(homework):
 
 def check_tokens() -> bool:
     """Проверяем переменных окружения"""
+    
+    
     return all((PRACTICUM_TOKEN, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID))
 
 
 def main():
     """главная фунция.общий ход работы"""
+
 
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
     if not check_tokens:
