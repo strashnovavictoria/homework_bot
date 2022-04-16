@@ -5,7 +5,6 @@ from dotenv import load_dotenv
 import time
 from http import HTTPStatus
 from logging.handlers import RotatingFileHandler
-
 import requests
 import telegram
 
@@ -24,18 +23,18 @@ PRACTICUM_TOKEN = os.getenv('PRACTICUM_TOKEN')
 TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
 TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
 
-
+current_timestamp = int(time.time() - 30 * 24 * 60 * 60)
 RETRY_TIME = 0
 ENDPOINT = 'https://practicum.yandex.ru/api/user_api/homework_statuses/'
 HEADERS = {'Authorization': f'OAuth {PRACTICUM_TOKEN}'}
+params = {'headers': HEADERS,
+          'params': {'from_date': current_timestamp}}
 
 HOMEWORK_VERDICT = {
     'approved': 'Работа проверена: ревьюеру всё понравилось. Ура!',
     'reviewing': 'Работа взята на проверку ревьюером.',
     'rejected': 'Работа проверена: у ревьюера есть замечания.'
 }
-
-current_timestamp = int(time.time())
 
 
 class HTTPStatusCodeIncorrect(Exception):
@@ -58,13 +57,18 @@ class TokenError(Exception):
 
 def send_message(bot, message):
     """Фунция для отправки сообщений."""
-    bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=message)
+    try:
+        bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=message)
+        logger.info(f'Бот отправил сообщение: {message}')
+    except SendMessageEror as error:
+        logger.error(f'Ошибка при отправке сообщения: {error}')
 
 
 def get_api_answer(current_timestamp):
     """Делает запрос к единственному эндпоинту API-сервиса."""
-    params = {'from_date': current_timestamp}
-    homeworks = requests.get(ENDPOINT, headers=HEADERS, params=params)
+    params = {'headers': HEADERS,
+              'params': {'from_date': current_timestamp}}
+    homeworks = requests.get(ENDPOINT, **params)
     response = homeworks.json()
     status_code = homeworks.status_code
     if status_code != HTTPStatus.OK:
@@ -84,7 +88,7 @@ def check_response(response):
         raise Exception('Нет ключа "homeworks"')
     try:
         homework = response['homeworks'][0]
-    except IndexError:
+    except HTTPStatusCodeIncorrect:
         raise Exception('Некорректные данные')
     return homework
 
@@ -120,18 +124,14 @@ def main():
         sys.exit()
     try:
         response = get_api_answer(current_timestamp)
+
         homework = check_response(response)
         message = parse_status(homework)
-        try:
-            send_message(bot, message)
-            logger.info(f'Бот отправил сообщение: {message}')
-        except SendMessageEror as error:
-            logger.error(f'Ошибка при отправке сообщения: {error}')
     except Exception:
         message = 'Ответа нет'
         logging.error(message)
-        send_message(bot, message)
     finally:
+        send_message(bot, message)
         time.sleep(RETRY_TIME)
 
 
