@@ -61,10 +61,12 @@ class ResponseNotCorrect(Exception):
 
 def send_message(bot, message):
     """Фунция для отправки сообщений."""
-    if bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=message):
-        logger.info(f'Бот отправил сообщение: {message}')
-    else:
+    try:
+        bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=message)
+    except Exception:
         logger.error('Ошибка при отправке сообщения')
+    else:
+        logger.info(f'Бот отправил сообщение: {message}')
 
 
 def get_api_answer(current_timestamp):
@@ -127,8 +129,8 @@ def main():
     if not check_tokens:
         logger.critical('Нет переменных окружения')
         sys.exit(-1)
+    bot = telegram.Bot(token=TELEGRAM_TOKEN)
     try:
-        bot = telegram.Bot(token=TELEGRAM_TOKEN)
         response = get_api_answer(current_timestamp)
 
         homework = check_response(response)
