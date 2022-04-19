@@ -41,7 +41,7 @@ class HTTPStatusCodeIncorrect(Exception):
     pass
 
 
-class GetAPIEror(Exception):
+class GetAPIError(Exception):
     """Создаем исключение."""
 
     pass
@@ -59,18 +59,12 @@ class ResponseNotCorrect(Exception):
     pass
 
 
-class SendMessageEror(Exception):
-    """Создаем исключение."""
-
-    pass
-
-
 def send_message(bot, message):
     """Фунция для отправки сообщений."""
     try:
         bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=message)
-    except SendMessageEror:
-        raise SendMessageEror('Ошибка при отправке.')
+    except Exception:
+        raise Exception('Ошибка при отправке.')
     else:
         logger.info(f'Бот отправил сообщение: {message}')
 
@@ -86,8 +80,8 @@ def get_api_answer(current_timestamp):
         if status_code != HTTPStatus.OK:
             message = f'API недоступен, код ошибки: {status_code}'
             raise HTTPStatusCodeIncorrect(message)
-    except GetAPIEror:
-        raise GetAPIEror('Ошибка при отправке.')
+    except GetAPIError:
+        raise GetAPIError('Ошибка при отправке.')
     return response
 
 
