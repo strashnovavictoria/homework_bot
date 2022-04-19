@@ -24,7 +24,7 @@ TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
 TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
 
 current_timestamp = 0
-RETRY_TIME = 0
+RETRY_TIME = 600
 ENDPOINT = 'https://practicum.yandex.ru/api/user_api/homework_statuses/'
 HEADERS = {'Authorization': f'OAuth {PRACTICUM_TOKEN}'}
 
@@ -59,12 +59,18 @@ class ResponseNotCorrect(Exception):
     pass
 
 
+class SendMessageEror(Exception):
+    """Создаем исключение."""
+
+    pass
+
+
 def send_message(bot, message):
     """Фунция для отправки сообщений."""
     try:
         bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=message)
-    except Exception:
-        logger.error('Ошибка при отправке сообщения')
+    except SendMessageEror:
+        raise SendMessageEror('Ошибка при отправке.')
     else:
         logger.info(f'Бот отправил сообщение: {message}')
 
@@ -130,18 +136,18 @@ def main():
         logger.critical('Нет переменных окружения')
         sys.exit(-1)
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
-    try:
-        response = get_api_answer(current_timestamp)
-
-        homework = check_response(response)
-        message = parse_status(homework)
-        send_message(bot, message)
-    except Exception as error:
-        message = f'Сбой в работе программы: {error}'
-        logging.error(message)
-        send_message(bot, message)
-    finally:
-        time.sleep(RETRY_TIME)
+    while True:
+        try:
+            response = get_api_answer(current_timestamp)
+            homework = check_response(response)
+            message = parse_status(homework)
+            send_message(bot, message)
+        except Exception as error:
+            message = f'Сбой в работе программы: {error}'
+            logging.error(message)
+            send_message(bot, message)
+        finally:
+            time.sleep(RETRY_TIME)
 
 
 if __name__ == '__main__':
