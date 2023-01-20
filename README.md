@@ -27,4 +27,5 @@ pip install -r requirements.txt
 Python 3.7, python-telegram-bot
 
 #### Автор:
-- Виктория Страшнова [strashnovavictoria](https://github.com/strashnovavictoria)
+- Виктория Страшнова
+ [strashnovavictoria](https://github.com/strashnovavictoria)
