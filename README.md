@@ -27,4 +27,4 @@ Python 3.7, python-telegram-bot
 
 #### Автор:
 - Виктория Страшнова
- [strashnovavictoria](https://github.com/strashnovavictoria)
+
